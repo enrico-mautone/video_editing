@@ -165,3 +165,5 @@ audio_tracks/
 videos/
 log.txt
 *.mp4
+docs/
+*.bat

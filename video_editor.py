@@ -1,3 +1,29 @@
+"""
+Video Editor
+
+Questo script fornisce funzionalità per l'editing di video, inclusi il montaggio audio,
+l'estrazione di intervalli specifici e l'ottenimento della lunghezza del video.
+
+Il script utilizza la libreria moviepy per la manipolazione dei video e implementa
+un sistema di logging per registrare le operazioni e gli errori.
+
+Funzionalità principali:
+- Montaggio di un nuovo audio su un video esistente
+- Estrazione di intervalli specifici da un video
+- Ottenimento della lunghezza totale di un video
+
+Utilizzo:
+    python video_editor.py [-h] (-a VIDEO_INPUT AUDIO_INPUT | -e VIDEO_INPUT INTERVALS | -l VIDEO_INPUT)
+
+Esempi:
+    python video_editor.py -a input_video.mp4 new_audio.mp3
+    python video_editor.py -e input_video.mp4 "1:30-2:45,3:15-4:00"
+    python video_editor.py -l input_video.mp4
+
+Note:
+    Tutte le operazioni e gli errori vengono registrati nel file 'log.txt'.
+"""
+
 import argparse
 import os
 import logging
@@ -8,6 +34,17 @@ logging.basicConfig(filename='log.txt', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 def parse_time(time_str):
+    """
+    Converte una stringa di tempo in secondi.
+
+    Accetta formati MM:SS o HH:MM:SS.
+
+    :param time_str: Stringa rappresentante il tempo
+    :type time_str: str
+    :return: Tempo in secondi
+    :rtype: int
+    :raises ValueError: Se il formato del tempo non è valido
+    """
     try:
         parts = time_str.split(':')
         if len(parts) == 2:
@@ -23,6 +60,17 @@ def parse_time(time_str):
         raise
 
 def parse_intervals(intervals_str):
+    """
+    Analizza una stringa di intervalli e la converte in una lista di tuple (inizio, fine).
+
+    Accetta intervalli nel formato "1:30-2:45,3:15-4:00" o "1:30,2:45,3:15,4:00".
+
+    :param intervals_str: Stringa rappresentante gli intervalli
+    :type intervals_str: str
+    :return: Lista di tuple (inizio, fine) in secondi
+    :rtype: list of tuple
+    :raises ValueError: Se il formato degli intervalli non è valido
+    """
     try:
         intervals = []
         for interval in intervals_str.split(','):
@@ -38,6 +86,15 @@ def parse_intervals(intervals_str):
         raise
 
 def montaggio_audio(video_input, audio_input):
+    """
+    Sostituisce l'audio di un video con un nuovo file audio.
+
+    :param video_input: Percorso del file video di input
+    :type video_input: str
+    :param audio_input: Percorso del file audio di input
+    :type audio_input: str
+    :raises Exception: Se si verifica un errore durante il montaggio audio
+    """
     try:
         video = VideoFileClip(video_input)
         audio = VideoFileClip(audio_input).audio
@@ -57,6 +114,15 @@ def montaggio_audio(video_input, audio_input):
         raise
 
 def estrai_intervalli(video_input, intervals):
+    """
+    Estrae intervalli specifici da un video e li concatena in un nuovo video.
+
+    :param video_input: Percorso del file video di input
+    :type video_input: str
+    :param intervals: Lista di tuple (inizio, fine) rappresentanti gli intervalli da estrarre
+    :type intervals: list of tuple
+    :raises Exception: Se si verifica un errore durante l'estrazione degli intervalli
+    """
     try:
         video = VideoFileClip(video_input)
         clips = []
@@ -78,6 +144,15 @@ def estrai_intervalli(video_input, intervals):
         raise
 
 def get_video_length(video_input):
+    """
+    Ottiene la lunghezza di un video in minuti e secondi.
+
+    :param video_input: Percorso del file video di input
+    :type video_input: str
+    :return: Tuple contenente minuti e secondi
+    :rtype: tuple
+    :raises Exception: Se si verifica un errore nell'ottenere la lunghezza del video
+    """
     try:
         video = VideoFileClip(video_input)
         duration = video.duration
@@ -91,6 +166,12 @@ def get_video_length(video_input):
         raise
 
 def main():
+    """
+    Funzione principale che gestisce l'interfaccia a riga di comando e esegue le operazioni richieste.
+
+    Utilizza argparse per analizzare gli argomenti della riga di comando e chiamare le funzioni appropriate.
+    Gestisce anche le eccezioni e registra gli errori nel file di log.
+    """
     parser = argparse.ArgumentParser(description='Elabora video: monta audio, estrai intervalli o ottieni lunghezza.')
     
     group = parser.add_mutually_exclusive_group(required=True)
